@@ -1,0 +1,17 @@
+# Optional: use Neon Postgres instead of the local Docker Postgres
+#
+# 1. Copy .env.docker.example to .env and set your Neon DATABASE_URL
+# 2. Run:
+#    docker compose -f docker-compose.yml -f docker-compose.neon.yml up --build
+#
+# This overrides DATABASE_URL from your .env file.
+# The local "db" container may still start but the backend will use Neon.
+
+services:
+  backend:
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-docker}

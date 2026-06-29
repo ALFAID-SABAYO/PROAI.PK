@@ -1,0 +1,8 @@
+.env
+.git
+**/__pycache__
+**/node_modules
+**/dist
+**/.venv
+**/*.md
+PropAI_Project_Documentation.docx
