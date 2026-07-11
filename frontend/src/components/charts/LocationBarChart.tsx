@@ -39,7 +39,7 @@ export function LocationBarChart({ data, title = 'Avg Price by Location' }: Prop
             }
           />
           <Legend />
-          <Bar dataKey="avgPrice" name="Avg Price (M PKR)" fill="#ff3333" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="avgPrice" name="Avg Price (M PKR)" fill="#3388ff" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
