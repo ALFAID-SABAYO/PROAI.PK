@@ -47,6 +47,11 @@ def seed_users(db: Session) -> None:
 
 
 def seed_properties(db: Session, limit: int | None = None) -> int:
+    dataset_path = Path(settings.DATASET_PATH)
+    if not dataset_path.exists():
+        print(f"Dataset file not found at {dataset_path} — skipping property seed (no crash).")
+        return 0
+
     raw = load_raw_dataset(settings.DATASET_PATH)
     cleaned = clean_dataset(raw)
     if limit:
