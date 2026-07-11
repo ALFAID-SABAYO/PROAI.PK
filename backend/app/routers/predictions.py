@@ -25,10 +25,10 @@ def _handle_prediction_errors(payload: PredictionRequest, listed_price: float | 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
-    except Exception as exc:
+   except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Prediction failed. Please check your inputs and try again.",
+            detail=f"DEBUG: {type(exc).__name__}: {str(exc)}",
         ) from exc
 
 
