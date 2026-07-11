@@ -1,5 +1,9 @@
 # Predictive AI for Real Estate Investment Analysis (Pakistan)
 
+## 🔗 Live Demo
+- **Frontend:** https://ai-project-2-seven.vercel.app
+- **Backend API Docs:** https://proaipk-production-19ed.up.railway.app/docs
+
 Full-stack web application for Karachi & Islamabad property investment analysis using ML price predictions, risk scoring, and role-based dashboards.
 
 ## Project Structure
