@@ -31,7 +31,7 @@ def _handle_prediction_errors(payload: PredictionRequest, listed_price: float | 
         print("===================================")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"DEBUG: {type(exc).__name__}: {str(exc)}",
+            detail="Prediction failed. Please check your inputs and try again.",
         ) from exc
 
 
