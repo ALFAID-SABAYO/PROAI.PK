@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../../api/client';
 import { LoadingSpinner } from '../ui/Loading';
@@ -12,13 +12,22 @@ function areaKey(area: AreaOption) {
   return `${area.location}|||${area.city}`;
 }
 
+function areaLabel(area: AreaOption) {
+  return `${area.location} — ${area.city}`;
+}
+
 export function PredictInvestment() {
   const [areas, setAreas] = useState<AreaOption[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
   const [areaTypes, setAreaTypes] = useState<string[]>([]);
   const [loadingMeta, setLoadingMeta] = useState(true);
 
+  // --- Area combobox state ---
+  const [areaQuery, setAreaQuery] = useState('');
   const [selectedAreaKey, setSelectedAreaKey] = useState('');
+  const [isAreaOpen, setIsAreaOpen] = useState(false);
+  const areaBoxRef = useRef<HTMLDivElement | null>(null);
+
   const [propertyType, setPropertyType] = useState('');
   const [bedrooms, setBedrooms] = useState('3');
   const [baths, setBaths] = useState('2');
@@ -48,9 +57,43 @@ export function PredictInvestment() {
       .finally(() => setLoadingMeta(false));
   }, []);
 
+  // Close the dropdown when clicking outside of it
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (areaBoxRef.current && !areaBoxRef.current.contains(e.target as Node)) {
+        setIsAreaOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredAreas = useMemo(() => {
+    const q = areaQuery.trim().toLowerCase();
+    if (!q) return areas;
+    return areas.filter((a) => areaLabel(a).toLowerCase().includes(q));
+  }, [areas, areaQuery]);
+
+  const handleAreaInputChange = (value: string) => {
+    setAreaQuery(value);
+    setIsAreaOpen(true);
+    // Typing invalidates the previously selected area until user picks again
+    if (selectedAreaKey) {
+      const stillMatches = selectedArea && areaLabel(selectedArea).toLowerCase() === value.trim().toLowerCase();
+      if (!stillMatches) setSelectedAreaKey('');
+    }
+  };
+
+  const handlePickArea = (area: AreaOption) => {
+    setSelectedAreaKey(areaKey(area));
+    setAreaQuery(areaLabel(area));
+    setIsAreaOpen(false);
+    setErrors((prev) => ({ ...prev, area: '' }));
+  };
+
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!selectedArea) e.area = 'Select an area';
+    if (!selectedArea) e.area = areaQuery.trim() ? 'No matching area found — pick one from the list' : 'Select an area';
     if (!propertyType) e.propertyType = 'Select property type';
     if (!areaSize || Number(areaSize) <= 0) e.areaSize = 'Enter a valid size';
     setErrors(e);
@@ -100,20 +143,37 @@ export function PredictInvestment() {
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className="relative" ref={areaBoxRef}>
               <label className="text-sm font-medium">Area</label>
-              <select
-                value={selectedAreaKey}
-                onChange={(e) => setSelectedAreaKey(e.target.value)}
+              <input
+                type="text"
+                value={areaQuery}
+                onChange={(e) => handleAreaInputChange(e.target.value)}
+                onFocus={() => setIsAreaOpen(true)}
+                placeholder="Type an area name…"
                 className="mt-1 w-full rounded-lg border border-surface-200 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
-              >
-                <option value="">Select area…</option>
-                {areas.map((a) => (
-                  <option key={areaKey(a)} value={areaKey(a)}>
-                    {a.location} — {a.city}
-                  </option>
-                ))}
-              </select>
+                autoComplete="off"
+              />
+
+              {isAreaOpen && (
+                <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-surface-200 bg-white shadow-lg">
+                  {filteredAreas.length > 0 ? (
+                    filteredAreas.map((a) => (
+                      <button
+                        type="button"
+                        key={areaKey(a)}
+                        onClick={() => handlePickArea(a)}
+                        className="block w-full px-3 py-2 text-left text-sm hover:bg-accent-50"
+                      >
+                        {areaLabel(a)}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-surface-800/50">No matching area found</div>
+                  )}
+                </div>
+              )}
+
               {errors.area && <p className="mt-1 text-xs text-red-500">{errors.area}</p>}
             </div>
 
