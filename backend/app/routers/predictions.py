@@ -1,3 +1,4 @@
+import traceback
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -25,6 +26,9 @@ def _handle_prediction_errors(payload: PredictionRequest, listed_price: float | 
             detail=str(exc),
         ) from exc
     except Exception as exc:
+        print("=== PREDICTION ERROR TRACEBACK ===")
+        print(traceback.format_exc())
+        print("===================================")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"DEBUG: {type(exc).__name__}: {str(exc)}",
