@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
@@ -25,7 +24,7 @@ def _handle_prediction_errors(payload: PredictionRequest, listed_price: float | 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         ) from exc
-   except Exception as exc:
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"DEBUG: {type(exc).__name__}: {str(exc)}",
@@ -58,7 +57,6 @@ def predict_for_property(
     prop = prop_svc.get_property(db, property_id)
     if not prop or not prop.is_active:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Property not found")
-
     request_payload = PredictionRequest(
         property_type=prop.property_type,
         location=prop.location,
