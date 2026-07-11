@@ -1,9 +1,6 @@
 .venv
 venv
 __pycache__
-*.pyc
-tests/
-docs/
-.git
-alembic/versions/*.py (agar purani migrations bohot hain)
-zameen-updated.csv (agar backend me kahin hai)
+.env
+app/ml/artifacts/*.pkl
+app/ml/artifacts/*.joblib
